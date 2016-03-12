@@ -3,10 +3,14 @@
 
 <h3>Usage(2 steps):</h3>
 
-<p>1. Import the js file, like:</p>
-<p>&lt;script type="text/javascript" src="region-1.0.0.js">&lt;/script><p>
-<p></p>
-<p>2. Define a div, like:</p>
-<p><div class="regions"></div></p>
-<p></p>
-<p><img src="demo.png"></p>
+<p>
+1. Import the js file, like:<br>
+&lt;script type="text/javascript" src="region-1.0.0.js">&lt;/script>
+</p>
+<p>
+2. Define a div, like:<br>
+&lt;div class="regions">&lt;/div>
+</p>
+<p>
+<img src="demo.png">
+</p>
