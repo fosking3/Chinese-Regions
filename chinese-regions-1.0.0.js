@@ -2,22 +2,34 @@
  * 1.0.0
  */
 (function($) {
-	if (!$.ima123) {
-		$.ima123 = {};
-	}
-	if (!$.ima123.regions) {
-		$.ima123.regions = {};
-	}
+	$.fn.extend({
+		onChineseRegionsClicked : function(onChineseRegionsClickedCallback) {
+			return this.each(function() {
+				$(this).find('.buttons div').click(function() {
+					var regionPinyin = $(this).attr('pinyin');
+					var regionName = $(this).attr('name');
+					onChineseRegionsClickedCallback(regionPinyin, regionName);
+				});
+			});
+		}
+	})
 })(jQuery);
 $(document).ready(function() {
-	var provinces = {
-		municipality : {
+	var provinces = [ {
+		category : 'municipality',
+		lineColor : '#BB3333',
+		iName : '直辖市',
+		regions : {
 			BeiJing : '北京',
 			ChongQing : '重庆',
 			ShangHai : '上海',
 			TianJin : '天津'
-		},
-		province : {
+		}
+	}, {
+		category : 'province',
+		lineColor : '#33BB33',
+		iName : '省',
+		regions : {
 			AnHui : '安徽',
 			FuJian : '福建',
 			GanSu : '甘肃',
@@ -40,43 +52,85 @@ $(document).ready(function() {
 			SiChuan : '四川',
 			YunNan : '云南',
 			ZheJiang : '浙江'
-		},
-		autonomousRegion : {
+		}
+	}, {
+		category : 'autonomousRegion',
+		lineColor : '#3333BB',
+		iName : '自治区',
+		regions : {
 			GuangXi : '广西',
 			NeiMengGu : '内蒙古',
 			NingXia : '宁夏',
 			XiZang : '西藏',
 			XinJiang : '新疆'
 		}
-	};
+	} ];
 	$('div.regions').each(function() {
-		var regions = $(this);
-		for ( var province in provinces) {
-			var region = $('<div class="' + province + '"></div>');
+		function setupLetterStyle(letters, lastCount) {
+			letters.children().last().css({
+				width: (50 + (lastCount - 1) * 70) + 'px'
+			});
+		}
+		var regions = $(this).css({
+			width: '410px',
+			margin: '0 auto'
+		});
+		for ( var i = 0; i < provinces.length; i++) {
+			var province = provinces[i];
+			var region = $('<div class="' + province.category + '"></div>');
 			regions.append(region);
-			var letters = $('<div class="letters"></div>');
-			var buttons = $('<div class="buttons"></div>');
+			var letters = $('<div class="letters"></div>').css({
+				color: '#AAAAAA'
+			});
+			var buttons = $('<div class="buttons"></div>').css({
+				color: '#222222'
+			});
 			var lastFirstLetter;
 			var lastCount = 0;
-			for ( var py in provinces[province]) {
+			for ( var py in province.regions) {
 				var firstLetter = py.substr(0, 1);
 				if (lastFirstLetter !== firstLetter) {
-					letters.append($('<div>' + firstLetter + '</div>'));
+					setupLetterStyle(letters, lastCount);
+					letters.append($('<div>' + firstLetter + '</div>').css({
+						float: 'left',
+						padding: '0px 5px 0px 5px',
+						'font-size': '12px',
+						'border-bottom-width': '3px',
+						'border-bottom-style': 'solid',
+						'margin-right': '10px'
+					}));
 					lastFirstLetter = firstLetter;
 					lastCount = 1;
 				} else {
 					lastCount ++;
 				}
-				var provinceName = provinces[province][py];
+				var provinceName = province.regions[py];
 				if (provinceName.length == 2) {
 					provinceName = provinceName.substr(0, 1) + ' ' + provinceName.substr(1, 1);
 				}
-				buttons.append($('<div>' + provinceName + '</div>').attr('py', py));
+				buttons.append($('<div>' + provinceName + '</div>').attr({
+					pinyin: py,
+					name: province.regions[py]
+				}).css({
+					float: 'left',
+					'text-align': 'center',
+					width: '58px',
+					'border': '1px solid #CCCCCC',
+					'font-size': '15px',
+					padding: '6px 0px',
+					cursor: 'pointer',
+					'border-radius': '5px',
+					margin: '2px 10px 6px 0px'
+				}));
 				if (buttons.children().size() > 6) {
-					var newLetters = $('<div class="letters"></div>');
-					var newButtons = $('<div class="buttons"></div>');
+					var newLetters = $('<div class="letters"></div>').css({
+						color: '#AAAAAA'
+					});
+					var newButtons = $('<div class="buttons"></div>').css({
+						color: '#222222'
+					});
 					newLetters.append(letters.children().last());
-					for ( ; lastCount > 0; lastCount--) {
+					for ( var j = lastCount; j > 0; j--) {
 						newButtons.prepend(buttons.children().last());
 					}
 					region.append(letters.append($('<p></p>')));
@@ -85,57 +139,21 @@ $(document).ready(function() {
 					buttons = newButtons;
 				}
 			}
+			setupLetterStyle(letters, lastCount);
 			region.append(letters.append($('<p></p>')));
 			region.append(buttons.append($('<p></p>')));
-		}
-		var root = regions.css({
-			width: '410px',
-			margin: '0 auto'
+			region.find('.letters div').css({
+				'border-bottom-color': province.lineColor
+			}).append('<i>' + province.iName + '</i>').find('i').css({
+			float: 'right'
 		});
-		root.find('p').css({
+		}
+		regions.find('.letters div i').eq(0).text('首都');
+		regions.find('p').css({
 			margin: 0,
 			clear: 'both'
 		});
-		root.find('.letters').css({
-			color: '#AAAAAA'
-		});
-		root.find('.buttons').css({
-			color: '#222222'
-		});
-		root.find('.letters div').css({
-			float: 'left',
-			width: '50px',
-			padding: '0px 5px 0px 5px',
-			'font-size': '12px',
-			'border-bottom-width': '3px',
-			'border-bottom-style': 'solid',
-			'margin-right': '10px'
-		});
-		root.find('.municipality .letters div').css({
-			'border-bottom-color': '#BB3333'
-		}).append('<i>直辖市</i>').find('i').eq(0).text('首都');
-		root.find('.province').css({
-			margin: '10px 0px'
-		}).find('.letters div').css({
-			'border-bottom-color': '#33BB33'
-		}).append('<i>省</i>');
-		root.find('.autonomousRegion .letters div').css({
-			'border-bottom-color': '#3333BB'
-		}).append('<i>自治区</i>');
-		root.find('.letters div i').css({
-			float: 'right'
-		});
-		root.find('.buttons div').css({
-			float: 'left',
-			'text-align': 'center',
-			width: '58px',
-			'border': '1px solid #CCCCCC',
-			'font-size': '15px',
-			padding: '6px 0px',
-			cursor: 'pointer',
-			'border-radius': '5px',
-			margin: '2px 10px 6px 0px'
-		}).hover(function() {
+		regions.find('.buttons div').hover(function() {
 			$(this).css({
 				'background-color' : '#EEEEEE'
 			});
@@ -144,42 +162,21 @@ $(document).ready(function() {
 				'background-color' : 'transparent'
 			});
 		});
-		root.find('.letters, .buttons').each(function() {
+		regions.find('.letters, .buttons').each(function() {
 			$(this).find('div').last().css({
 				'margin-right': '0px'
 			});
 		});
-		root.find('.province .letters:eq(0) div:eq(2)').css({
-			width : '190px'
-		});
-		root.find('.province .letters:eq(1) div:eq(0)').css({
-			width : '400px'
-		});
-		root.find('.province .letters:eq(2) div:eq(0)').css({
-			width : '190px'
-		});
-		root.find('.province .letters:eq(3) div:eq(0)').css({
-			width : '260px'
-		});
-		root.find('.autonomousRegion .letters:eq(0) div:eq(1)').css({
-			width : '120px'
-		});
-		root.find('.autonomousRegion .letters:eq(0) div:eq(2)').css({
-			width : '120px'
-		});
-		root.find('.municipality .letters div:eq(1), .municipality .buttons div:eq(1)').css({
+		regions.find('.municipality .letters div:eq(1), .municipality .buttons div:eq(1)').css({
 			'margin-left' : '140px'
 		})
-		root.find('.province .letters div:eq(1), .province .buttons div:eq(1)'
-				+ ',.province .letters:eq(0) div:eq(2), .province .buttons:eq(0) div:eq(2)'
-				+ ',.province .letters:eq(2) div:eq(1), .province .buttons:eq(2) div:eq(3)'
-				+ ',.province .letters:eq(2) div:eq(2), .province .buttons:eq(2) div:eq(4)'
-				+ ',.autonomousRegion .letters div:eq(1), .autonomousRegion .buttons div:eq(1)'
-				+ ',.autonomousRegion .letters div:eq(2), .autonomousRegion .buttons div:eq(3)').css({
+		regions.find('.province   .letters:eq(0) div:eq(1), .province   .buttons:eq(0) div:eq(1),'
+					+'.province   .letters:eq(0) div:eq(2), .province   .buttons:eq(0) div:eq(2),'
+					+'.province   .letters:eq(2) div:eq(1), .province   .buttons:eq(2) div:eq(3),'
+					+'.province   .letters:eq(2) div:eq(2), .province   .buttons:eq(2) div:eq(4),'
+					+'.autonomousRegion .letters div:eq(1), .autonomousRegion .buttons div:eq(1),'
+					+'.autonomousRegion .letters div:eq(2), .autonomousRegion .buttons div:eq(3)').css({
 			'margin-left' : '35px'
-		});
-		root.find('.buttons div').click(function() {
-			alert($(this).attr("py"));
 		});
 	});
 });
