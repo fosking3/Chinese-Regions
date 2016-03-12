@@ -1,16 +1,16 @@
-<p>A selection panel of Chinese administrative regions</p>
-<p>中国行政区划选择面板</p>
+# A selection panel of Chinese administrative regions
+# 中国行政区划选择面板
 
-<h3>Usage(2 steps):</h3>
+## Usage(2 steps):
 
-<p>
 1. Import the js file, like:<br>
-&lt;script type="text/javascript" src="region-1.0.0.js">&lt;/script>
-</p>
-<p>
-2. Define a div, like:<br>
-&lt;div class="regions">&lt;/div>
-</p>
-<p>
-<img src="demo.png">
-</p>
+```
+<script type="text/javascript" src="chinese-regions-1.0.0.js"></script>
+```
+2. Define a div, like:
+```
+<div class="regions"></div>
+```
+## the preview of the panel:
+
+![selection panel demo image](demo.png)
